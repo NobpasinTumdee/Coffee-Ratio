@@ -1,0 +1,632 @@
+/* === Layout shell === */
+.app-shell {
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 24px 16px;
+  overflow: hidden;
+}
+
+.bg-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
+}
+.bg-orb-a {
+  width: 300px;
+  height: 300px;
+  top: -90px;
+  left: -80px;
+  background: radial-gradient(circle, #c69b76, transparent 70%);
+}
+.bg-orb-b {
+  width: 340px;
+  height: 340px;
+  bottom: -120px;
+  right: -120px;
+  background: radial-gradient(circle, #a87654, transparent 70%);
+  opacity: 0.25;
+}
+.bg-orb-c {
+  display: none;
+}
+
+.screen {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 8px 0 32px;
+}
+
+/* === Glass primitive === */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(110%);
+  -webkit-backdrop-filter: blur(16px) saturate(110%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
+}
+
+.card {
+  padding: 24px 22px;
+}
+
+/* === Brand header === */
+.brand {
+  text-align: center;
+  padding: 12px 0 0;
+}
+.brand-mark {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  display: inline-block;
+  filter: drop-shadow(0 4px 12px rgba(70, 45, 25, 0.18));
+}
+.brand h1 {
+  font-size: clamp(28px, 6vw, 34px);
+  margin: 8px 0 4px;
+}
+.brand-sub {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-soft);
+}
+
+/* === Recipe select === */
+.recipe-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field-label {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  margin-bottom: 8px;
+}
+
+.select-wrap {
+  position: relative;
+}
+.select-wrap::after {
+  content: "▾";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-soft);
+  pointer-events: none;
+  font-size: 14px;
+}
+
+.glass-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(255, 252, 246, 0.7);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  appearance: none;
+}
+.glass-input:focus {
+  border-color: var(--accent);
+  background: rgba(255, 252, 246, 0.95);
+  box-shadow: 0 0 0 4px var(--accent-glow);
+}
+
+select.glass-input {
+  padding-right: 40px;
+}
+select.glass-input option {
+  background: #fff8ee;
+  color: var(--text);
+}
+
+.recipe-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+@media (max-width: 380px) {
+  .recipe-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.recipe-summary-button {
+  position: relative;
+  width: 100%;
+  padding: 14px 14px 28px;
+  background: rgba(255, 252, 246, 0.4);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  color: inherit;
+  text-align: left;
+  transition: background 0.18s ease, border-color 0.18s ease,
+    transform 0.12s ease;
+}
+.recipe-summary-button:hover {
+  background: rgba(255, 252, 246, 0.75);
+  border-color: rgba(120, 85, 55, 0.28);
+}
+.recipe-summary-button:active {
+  transform: translateY(1px);
+}
+.recipe-summary-hint {
+  position: absolute;
+  bottom: 8px;
+  right: 14px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  grid-column: 1 / -1;
+}
+.stat {
+  background: rgba(255, 252, 246, 0.55);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-label {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.stat-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* === Buttons === */
+.button-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn {
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: transform 0.12s ease, box-shadow 0.18s ease, background 0.18s ease,
+    border-color 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.btn-primary {
+  color: #fff8ee;
+  background: var(--accent);
+  box-shadow: 0 10px 24px rgba(70, 45, 25, 0.18);
+}
+.btn-primary:not(:disabled):hover {
+  background: #5a3f2c;
+  box-shadow: 0 14px 30px rgba(70, 45, 25, 0.24);
+}
+
+.btn-ghost {
+  background: rgba(255, 252, 246, 0.5);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+}
+.btn-ghost:not(:disabled):hover {
+  background: rgba(255, 252, 246, 0.85);
+  border-color: rgba(120, 85, 55, 0.28);
+}
+
+.btn-tiny {
+  padding: 8px 12px;
+  font-size: 13px;
+  border-radius: var(--radius-sm);
+}
+
+/* === Modal === */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(45, 28, 16, 0.32);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+  animation: fade-in 0.18s ease;
+}
+
+@media (min-width: 600px) {
+  .modal-overlay {
+    align-items: center;
+  }
+}
+
+.modal {
+  width: 100%;
+  max-width: 460px;
+  max-height: 90svh;
+  display: flex;
+  flex-direction: column;
+  background: var(--glass-bg-strong);
+  animation: slide-up 0.24s ease;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 22px 8px;
+}
+.modal-head h2 {
+  font-size: 20px;
+}
+
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 252, 246, 0.6);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  font-size: 20px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-btn:hover:not(:disabled) {
+  background: rgba(255, 252, 246, 0.9);
+}
+.icon-btn.small {
+  width: 28px;
+  height: 28px;
+  font-size: 16px;
+}
+.icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.modal-body {
+  padding: 12px 22px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: block;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.steps-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.steps-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.step-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.step-row {
+  display: grid;
+  grid-template-columns: 24px 1fr auto 1fr 32px;
+  align-items: center;
+  gap: 8px;
+}
+.step-row .glass-input {
+  padding: 10px 12px;
+  font-size: 14px;
+}
+.step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent-glow);
+  border: 1px solid rgba(120, 85, 55, 0.2);
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-weight: 600;
+}
+.step-at {
+  color: var(--text-mute);
+  font-size: 13px;
+}
+
+.schedule-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.schedule-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255, 252, 246, 0.55);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+}
+.schedule-num {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-glow);
+  border: 1px solid rgba(120, 85, 55, 0.22);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+}
+.schedule-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.schedule-target {
+  font-size: 15px;
+  color: var(--text);
+}
+.schedule-target strong {
+  color: var(--text);
+}
+.schedule-add {
+  margin-left: 8px;
+  font-size: 12px;
+  color: var(--text-mute);
+}
+.schedule-time {
+  font-size: 13px;
+  color: var(--text-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.error-msg {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(180, 70, 50, 0.1);
+  border: 1px solid rgba(180, 70, 50, 0.3);
+  color: #8a3a25;
+  font-size: 13px;
+}
+
+.modal-foot {
+  display: flex;
+  gap: 10px;
+  padding: 12px 22px 20px;
+}
+.modal-foot .btn {
+  flex: 1;
+}
+
+/* === Timer screen === */
+.timer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 4px;
+}
+.timer-recipe-name {
+  font-size: 14px;
+  color: var(--text-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+  text-align: center;
+}
+.timer-step-count {
+  font-size: 13px;
+  color: var(--text-mute);
+  font-variant-numeric: tabular-nums;
+}
+
+.timer-card {
+  padding: 28px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 24px;
+  text-align: center;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.phase-pill {
+  align-self: center;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 252, 246, 0.6);
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.phase-pouring .phase-pill {
+  background: rgba(95, 138, 108, 0.12);
+  border-color: rgba(95, 138, 108, 0.4);
+  color: var(--pouring);
+}
+.phase-waiting .phase-pill {
+  background: rgba(184, 137, 90, 0.14);
+  border-color: rgba(184, 137, 90, 0.4);
+  color: var(--waiting);
+}
+.phase-done .phase-pill {
+  background: rgba(139, 111, 71, 0.14);
+  border-color: rgba(139, 111, 71, 0.4);
+  color: var(--done);
+}
+
+.elapsed {
+  font-size: clamp(64px, 18vw, 88px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--accent);
+  text-shadow: 0 6px 18px rgba(70, 45, 25, 0.12);
+}
+
+.instruction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.instruction-label {
+  font-size: 13px;
+  color: var(--text-mute);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.instruction-value {
+  font-size: clamp(34px, 9vw, 42px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.phase-pouring .instruction-value {
+  color: var(--pouring);
+}
+.phase-waiting .instruction-value {
+  color: var(--waiting);
+}
+.phase-done .instruction-value {
+  color: var(--done);
+}
+.instruction-sub {
+  font-size: 14px;
+  color: var(--text-soft);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(120, 85, 55, 0.12);
+  overflow: hidden;
+  margin-top: 8px;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--waiting), var(--accent-2));
+  border-radius: inherit;
+  transition: width 0.18s linear;
+}
+
+.overall-bar {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(120, 85, 55, 0.1);
+  overflow: hidden;
+}
+.overall-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: inherit;
+  transition: width 0.35s ease;
+}
+
+.phase-pouring.timer-screen .timer-card {
+  border-color: rgba(95, 138, 108, 0.35);
+  box-shadow: 0 14px 36px rgba(70, 45, 25, 0.1),
+    0 0 0 1px rgba(95, 138, 108, 0.15) inset;
+}
+.phase-waiting.timer-screen .timer-card {
+  border-color: rgba(184, 137, 90, 0.4);
+  box-shadow: 0 14px 36px rgba(70, 45, 25, 0.1),
+    0 0 0 1px rgba(184, 137, 90, 0.18) inset;
+}
+.phase-done.timer-screen .timer-card {
+  border-color: rgba(139, 111, 71, 0.4);
+  box-shadow: 0 14px 36px rgba(70, 45, 25, 0.1),
+    0 0 0 1px rgba(139, 111, 71, 0.2) inset;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
