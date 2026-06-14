@@ -1,10 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Phase, Recipe } from "../types";
+import successSound from "../sound_effect/success.mp3";
+import warningSound from "../sound_effect/Waning.mp3";
 
 interface Props {
   recipe: Recipe;
   onExit: () => void;
 }
+
+// Restart and play a preloaded clip, ignoring autoplay-policy rejections.
+const playSound = (audio: HTMLAudioElement | null) => {
+  if (!audio) return;
+  audio.currentTime = 0;
+  void audio.play().catch(() => {});
+};
 
 const formatTime = (totalSeconds: number): string => {
   const safe = Math.max(0, Math.floor(totalSeconds));
@@ -24,6 +33,12 @@ const Timer = ({ recipe, onExit }: Props) => {
   const [phase, setPhase] = useState<Phase>("pouring");
   const startRef = useRef<number>(Date.now());
 
+  // Audio elements live in refs so playback never triggers a re-render.
+  const successRef = useRef<HTMLAudioElement | null>(null);
+  const warningRef = useRef<HTMLAudioElement | null>(null);
+  // Tracks which pouring step has already fired its warning so it plays once.
+  const warnedStepRef = useRef<number>(-1);
+
   useEffect(() => {
     startRef.current = Date.now();
     const id = window.setInterval(() => {
@@ -31,6 +46,39 @@ const Timer = ({ recipe, onExit }: Props) => {
     }, 100);
     return () => window.clearInterval(id);
   }, []);
+
+  // Preload the clips once and tear them down when the session ends/resets.
+  useEffect(() => {
+    successRef.current = new Audio(successSound);
+    warningRef.current = new Audio(warningSound);
+    return () => {
+      for (const ref of [successRef, warningRef]) {
+        if (ref.current) {
+          ref.current.pause();
+          ref.current.currentTime = 0;
+          ref.current = null;
+        }
+      }
+    };
+  }, []);
+
+  // Warning: prompt the user to hurry 2s before the next pour begins, but only
+  // while they are still pouring (never during a "waiting" phase).
+  useEffect(() => {
+    if (phase !== "pouring") return;
+    const nextStep = stepIndex + 1;
+    if (nextStep >= totalSteps) return;
+    if (warnedStepRef.current === stepIndex) return;
+    if (elapsed >= stepTimes[nextStep] - 2) {
+      warnedStepRef.current = stepIndex;
+      playSound(warningRef.current);
+    }
+  }, [elapsed, phase, stepIndex, stepTimes, totalSteps]);
+
+  // Success again once the whole session has finished.
+  useEffect(() => {
+    if (phase === "done") playSound(successRef.current);
+  }, [phase]);
 
   useEffect(() => {
     if (phase !== "waiting") return;
@@ -45,6 +93,7 @@ const Timer = ({ recipe, onExit }: Props) => {
   }, [elapsed, phase, doneTime]);
 
   const handleDone = () => {
+    playSound(successRef.current);
     if (stepIndex >= totalSteps - 1) {
       // Final pour complete — wait out the drawdown instead of finishing.
       setPhase(elapsed >= doneTime ? "done" : "drawdown");
