@@ -12,6 +12,7 @@ export const DEFAULT_RECIPES: Recipe[] = [
     time: {
       "water-g": [30, 90, 150],
       "time-s": [0, 30, 60],
+      "done-s": 120,
     },
   },
   {
@@ -23,6 +24,7 @@ export const DEFAULT_RECIPES: Recipe[] = [
     time: {
       "water-g": [45, 135, 225],
       "time-s": [0, 45, 75],
+      "done-s": 135,
     },
   },
   {
@@ -34,6 +36,7 @@ export const DEFAULT_RECIPES: Recipe[] = [
     time: {
       "water-g": [60, 180, 300],
       "time-s": [0, 45, 90],
+      "done-s": 150,
     },
   },
   {
@@ -45,6 +48,7 @@ export const DEFAULT_RECIPES: Recipe[] = [
     time: {
       "water-g": [50, 150, 250],
       "time-s": [0, 45, 75],
+      "done-s": 210,
     },
   },
   {
@@ -56,15 +60,28 @@ export const DEFAULT_RECIPES: Recipe[] = [
     time: {
       "water-g": [45, 90, 135, 180, 225],
       "time-s": [0, 45, 90, 135, 165],
+      "done-s": 210,
     },
   },
 ];
+
+// Older saved recipes may predate the `done-s` field. Backfill it from the
+// last pour time so the drawdown phase always has a valid target.
+const withDoneTime = (recipe: Recipe): Recipe => {
+  if (typeof recipe.time["done-s"] === "number") return recipe;
+  const times = recipe.time["time-s"];
+  const lastTime = times.at(-1) ?? 0;
+  return {
+    ...recipe,
+    time: { ...recipe.time, "done-s": lastTime },
+  };
+};
 
 export const loadRecipes = (): Recipe[] => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_RECIPES;
-    const parsed = JSON.parse(raw) as Recipe[];
+    const parsed = (JSON.parse(raw) as Recipe[]).map(withDoneTime);
     if (!Array.isArray(parsed) || parsed.length === 0) return DEFAULT_RECIPES;
     const existingNames = new Set(parsed.map((r) => r.name));
     const missing = DEFAULT_RECIPES.filter((r) => !existingNames.has(r.name));

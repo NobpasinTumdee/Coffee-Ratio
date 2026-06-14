@@ -1,6 +1,7 @@
 export interface RecipeStep {
   "water-g": number[];
   "time-s": number[];
+  "done-s": number;
 }
 
 export interface Recipe {
@@ -12,6 +13,6 @@ export interface Recipe {
   time: RecipeStep;
 }
 
-export type Phase = "pouring" | "waiting" | "done";
+export type Phase = "pouring" | "waiting" | "drawdown" | "done";
 
 export type Screen = "select" | "timer";

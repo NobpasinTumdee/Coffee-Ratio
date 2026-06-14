@@ -18,6 +18,7 @@ const RecipeDetailModal = ({ recipe, onClose, onStart }: Props) => {
 
   const waters = recipe.time["water-g"];
   const times = recipe.time["time-s"];
+  const doneTime = recipe.time["done-s"];
   const totalWater = waters.at(-1) ?? 0;
 
   return (
@@ -81,6 +82,17 @@ const RecipeDetailModal = ({ recipe, onClose, onStart }: Props) => {
                   </li>
                 );
               })}
+              <li className="schedule-row">
+                <span className="schedule-num">✓</span>
+                <div className="schedule-main">
+                  <span className="schedule-target">
+                    <strong>Drawdown complete</strong>
+                  </span>
+                  <span className="schedule-time">
+                    Finish @ {formatTime(doneTime)}
+                  </span>
+                </div>
+              </li>
             </ol>
           </div>
         </div>

@@ -99,6 +99,12 @@
   color: var(--text-mute);
   margin-bottom: 8px;
 }
+.field-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-soft);
+}
 
 .select-wrap {
   position: relative;
@@ -519,6 +525,11 @@ select.glass-input option {
   border-color: rgba(184, 137, 90, 0.4);
   color: var(--waiting);
 }
+.phase-drawdown .phase-pill {
+  background: rgba(184, 137, 90, 0.14);
+  border-color: rgba(184, 137, 90, 0.4);
+  color: var(--waiting);
+}
 .phase-done .phase-pill {
   background: rgba(139, 111, 71, 0.14);
   border-color: rgba(139, 111, 71, 0.4);
@@ -557,6 +568,9 @@ select.glass-input option {
   color: var(--pouring);
 }
 .phase-waiting .instruction-value {
+  color: var(--waiting);
+}
+.phase-drawdown .instruction-value {
   color: var(--waiting);
 }
 .phase-done .instruction-value {
@@ -601,7 +615,8 @@ select.glass-input option {
   box-shadow: 0 14px 36px rgba(70, 45, 25, 0.1),
     0 0 0 1px rgba(95, 138, 108, 0.15) inset;
 }
-.phase-waiting.timer-screen .timer-card {
+.phase-waiting.timer-screen .timer-card,
+.phase-drawdown.timer-screen .timer-card {
   border-color: rgba(184, 137, 90, 0.4);
   box-shadow: 0 14px 36px rgba(70, 45, 25, 0.1),
     0 0 0 1px rgba(184, 137, 90, 0.18) inset;

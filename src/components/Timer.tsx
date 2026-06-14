@@ -16,6 +16,7 @@ const formatTime = (totalSeconds: number): string => {
 const Timer = ({ recipe, onExit }: Props) => {
   const waterTargets = recipe.time["water-g"];
   const stepTimes = recipe.time["time-s"];
+  const doneTime = recipe.time["done-s"];
   const totalSteps = waterTargets.length;
 
   const [elapsed, setElapsed] = useState(0);
@@ -37,9 +38,16 @@ const Timer = ({ recipe, onExit }: Props) => {
     if (elapsed >= stepTimes[stepIndex]) setPhase("pouring");
   }, [elapsed, phase, stepIndex, stepTimes, totalSteps]);
 
+  // During drawdown the timer keeps running until the recipe's finish time.
+  useEffect(() => {
+    if (phase !== "drawdown") return;
+    if (elapsed >= doneTime) setPhase("done");
+  }, [elapsed, phase, doneTime]);
+
   const handleDone = () => {
     if (stepIndex >= totalSteps - 1) {
-      setPhase("done");
+      // Final pour complete — wait out the drawdown instead of finishing.
+      setPhase(elapsed >= doneTime ? "done" : "drawdown");
       return;
     }
     const next = stepIndex + 1;
@@ -61,7 +69,18 @@ const Timer = ({ recipe, onExit }: Props) => {
   }, [phase, nextStartTime, elapsed, stepIndex, stepTimes]);
 
   const totalWater = waterTargets.at(-1) ?? 0;
-  const overallProgress = Math.min(1, (previousTarget / totalWater) || 0);
+  const overallProgress =
+    phase === "drawdown" || phase === "done"
+      ? 1
+      : Math.min(1, (previousTarget / totalWater) || 0);
+
+  const drawdownProgress = useMemo(() => {
+    if (phase !== "drawdown") return 0;
+    const lastPour = stepTimes.at(-1) ?? 0;
+    const span = doneTime - lastPour;
+    if (span <= 0) return 1;
+    return Math.min(1, Math.max(0, (elapsed - lastPour) / span));
+  }, [phase, doneTime, elapsed, stepTimes]);
 
   return (
     <div className={`screen timer-screen phase-${phase}`}>
@@ -79,6 +98,7 @@ const Timer = ({ recipe, onExit }: Props) => {
         <span className="phase-pill">
           {phase === "pouring" && "Pouring"}
           {phase === "waiting" && "Wait"}
+          {phase === "drawdown" && "Drawdown"}
           {phase === "done" && "Brew Complete"}
         </span>
 
@@ -109,11 +129,29 @@ const Timer = ({ recipe, onExit }: Props) => {
           </div>
         )}
 
+        {phase === "drawdown" && (
+          <div className="instruction">
+            <span className="instruction-label">Final target reached</span>
+            <span className="instruction-value">{totalWater} g</span>
+            <span className="instruction-sub">
+              Wait for drawdown… finishing at {formatTime(doneTime)}
+            </span>
+            <div className="progress-bar">
+              <div
+                className="progress-bar-fill"
+                style={{ width: `${drawdownProgress * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
+
         {phase === "done" && (
           <div className="instruction">
-            <span className="instruction-label">Total</span>
-            <span className="instruction-value">{totalWater} g</span>
-            <span className="instruction-sub">Enjoy your cup.</span>
+            <span className="instruction-label">Completed</span>
+            <span className="instruction-value">Enjoy your coffee ☕</span>
+            <span className="instruction-sub">
+              {totalWater} g in {formatTime(doneTime)}
+            </span>
           </div>
         )}
 
@@ -127,7 +165,7 @@ const Timer = ({ recipe, onExit }: Props) => {
         <div className="button-row">
           {phase === "pouring" && (
             <button className="btn btn-primary" onClick={handleDone}>
-              {stepIndex >= totalSteps - 1 ? "Finish" : "Done Pouring"}
+              Done Pouring
             </button>
           )}
           {phase === "waiting" && (
@@ -135,9 +173,14 @@ const Timer = ({ recipe, onExit }: Props) => {
               Waiting…
             </button>
           )}
+          {phase === "drawdown" && (
+            <button className="btn btn-ghost" disabled>
+              Draining…
+            </button>
+          )}
           {phase === "done" && (
             <button className="btn btn-primary" onClick={onExit}>
-              Back to Recipes
+              Finish
             </button>
           )}
           {phase !== "done" && (

@@ -18,6 +18,7 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
   const [name, setName] = useState("");
   const [coffee, setCoffee] = useState("15");
   const [ratio, setRatio] = useState("16");
+  const [done, setDone] = useState("120");
   const [steps, setSteps] = useState<PourStep[]>([
     { water: "30", time: "0" },
     { water: "", time: "" },
@@ -29,6 +30,7 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
     setName("");
     setCoffee("15");
     setRatio("16");
+    setDone("120");
     setSteps([
       { water: "30", time: "0" },
       { water: "", time: "" },
@@ -52,12 +54,15 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
     const trimmedName = name.trim();
     const coffeeNum = Number(coffee);
     const ratioNum = Number(ratio);
+    const doneNum = Number(done);
 
     if (!trimmedName) return setError("Please give the recipe a name.");
     if (!Number.isFinite(coffeeNum) || coffeeNum <= 0)
       return setError("Coffee weight must be a positive number.");
     if (!Number.isFinite(ratioNum) || ratioNum <= 0)
       return setError("Water ratio must be a positive number.");
+    if (!Number.isFinite(doneNum) || doneNum <= 0)
+      return setError("Total finish time must be a positive number.");
 
     const cleanSteps = steps
       .map((s) => ({ water: Number(s.water), time: Number(s.time) }))
@@ -80,6 +85,11 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
       }
     }
 
+    const lastPourTime = cleanSteps.at(-1)?.time ?? 0;
+    if (doneNum < lastPourTime) {
+      return setError("Total finish time must be after the last pour.");
+    }
+
     const recipe: Recipe = {
       name: trimmedName,
       ratio: `1:${ratioNum}`,
@@ -89,6 +99,7 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
       time: {
         "water-g": cleanSteps.map((s) => s.water),
         "time-s": cleanSteps.map((s) => s.time),
+        "done-s": doneNum,
       },
     };
 
@@ -151,6 +162,22 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
               />
             </label>
           </div>
+
+          <label className="field">
+            <span className="field-label">Total time to finish (s)</span>
+            <input
+              className="glass-input"
+              type="number"
+              min="0"
+              step="1"
+              value={done}
+              onChange={(e) => setDone(e.target.value)}
+              placeholder="e.g. 120"
+            />
+            <span className="field-hint">
+              When the water should finish draining (drawdown).
+            </span>
+          </label>
 
           <div className="steps-section">
             <div className="steps-head">
