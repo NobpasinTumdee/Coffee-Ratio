@@ -494,6 +494,7 @@ select.glass-input option {
 }
 
 .timer-card {
+  position: relative;
   padding: 28px 24px 24px;
   display: flex;
   flex-direction: column;
@@ -501,6 +502,33 @@ select.glass-input option {
   gap: 24px;
   text-align: center;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Minimalist close icon anchored to the card's top-right corner. */
+.timer-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 252, 246, 0.55);
+  border: 1px solid var(--glass-border);
+  color: var(--text-soft);
+  font-size: 20px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
+}
+.timer-close:hover {
+  background: rgba(255, 252, 246, 0.95);
+  color: var(--text);
+}
+.timer-close:active {
+  transform: scale(0.9);
 }
 
 .phase-pill {
@@ -596,6 +624,24 @@ select.glass-input option {
   transition: width 0.18s linear;
 }
 
+/* Pouring countdown: green draining bar that turns urgent near the deadline. */
+.progress-bar-fill.is-countdown {
+  background: linear-gradient(90deg, var(--pouring), var(--accent-2));
+  transition: width 0.18s linear, background 0.3s ease;
+}
+.progress-bar-fill.is-countdown.is-urgent {
+  background: linear-gradient(90deg, #c0584a, #d98b4a);
+  animation: pulse-bar 0.9s ease-in-out infinite;
+}
+@keyframes pulse-bar {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
 .overall-bar {
   width: 100%;
   height: 6px;
@@ -625,6 +671,124 @@ select.glass-input option {
   border-color: rgba(139, 111, 71, 0.4);
   box-shadow: 0 14px 36px rgba(70, 45, 25, 0.1),
     0 0 0 1px rgba(139, 111, 71, 0.2) inset;
+}
+
+/* === Vertical timeline === */
+.timeline-card {
+  padding: 20px 22px;
+}
+.timeline-heading {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  margin-bottom: 16px;
+}
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.timeline-node {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  padding-bottom: 18px;
+  text-align: left;
+  transition: opacity 0.3s ease;
+}
+.timeline-node:last-child {
+  padding-bottom: 0;
+}
+/* Connector line running down the centre of each marker. */
+.timeline-node::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 30px;
+  bottom: -2px;
+  width: 2px;
+  background: rgba(120, 85, 55, 0.18);
+  transition: background 0.3s ease;
+}
+.timeline-node:last-child::before {
+  display: none;
+}
+
+.timeline-marker {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(255, 252, 246, 0.7);
+  border: 1px solid var(--glass-border);
+  color: var(--text-mute);
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease,
+    transform 0.3s ease, box-shadow 0.3s ease;
+}
+.timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 3px;
+}
+.timeline-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  transition: color 0.3s ease;
+}
+.timeline-sub {
+  font-size: 12px;
+  color: var(--text-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Future steps: dimmed. */
+.timeline-node.is-upcoming {
+  opacity: 0.45;
+}
+
+/* Past steps: solid accent with a check. */
+.timeline-node.is-done .timeline-marker {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff8ee;
+}
+.timeline-node.is-done::before {
+  background: var(--accent);
+  opacity: 0.5;
+}
+
+/* Current step: glowing, enlarged dot with an active title colour. */
+.timeline-node.is-active .timeline-marker {
+  background: var(--pouring);
+  border-color: var(--pouring);
+  color: #fff8ee;
+  transform: scale(1.18);
+  box-shadow: 0 0 0 4px rgba(95, 138, 108, 0.2);
+  animation: marker-glow 1.8s ease-in-out infinite;
+}
+.timeline-node.is-active .timeline-title {
+  color: var(--pouring);
+}
+@keyframes marker-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(95, 138, 108, 0.18);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(95, 138, 108, 0.05);
+  }
 }
 
 @keyframes fade-in {

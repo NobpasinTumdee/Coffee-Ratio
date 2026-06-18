@@ -12,7 +12,7 @@ interface Props {
 const playSound = (audio: HTMLAudioElement | null) => {
   if (!audio) return;
   audio.currentTime = 0;
-  void audio.play().catch(() => {});
+  void audio.play().catch(() => { });
 };
 
 const formatTime = (totalSeconds: number): string => {
@@ -131,12 +131,38 @@ const Timer = ({ recipe, onExit }: Props) => {
     return Math.min(1, Math.max(0, (elapsed - lastPour) / span));
   }, [phase, doneTime, elapsed, stepTimes]);
 
+  // While the user is still pouring a step, count down the remaining time until
+  // the next pour begins (or the final drawdown). The bar shrinks as time runs
+  // out; `secondsLeft` drives the urgent state once it dips below the buffer.
+  const pourCountdown = useMemo(() => {
+    if (phase !== "pouring") return null;
+    const target =
+      stepIndex + 1 < totalSteps ? stepTimes[stepIndex + 1] : doneTime;
+    const start = stepTimes[stepIndex];
+    const span = target - start;
+    const remaining = span <= 0 ? 0 : (target - elapsed) / span;
+    return {
+      remaining: Math.min(1, Math.max(0, remaining)),
+      secondsLeft: Math.max(0, target - elapsed),
+      target,
+    };
+  }, [phase, stepIndex, totalSteps, stepTimes, doneTime, elapsed]);
+
+  // Per-node state for the vertical timeline. `stepIndex` is the active pour
+  // during the pouring/waiting phases; once drawdown starts every pour is done.
+  type NodeState = "done" | "active" | "upcoming";
+  const pourNodeState = (i: number): NodeState => {
+    if (phase === "drawdown" || phase === "done") return "done";
+    if (i < stepIndex) return "done";
+    if (i === stepIndex) return "active";
+    return "upcoming";
+  };
+  const drawdownNodeState: NodeState =
+    phase === "done" ? "done" : phase === "drawdown" ? "active" : "upcoming";
+
   return (
     <div className={`screen timer-screen phase-${phase}`}>
       <header className="timer-head">
-        <button className="btn btn-ghost btn-tiny" onClick={onExit}>
-          ← Exit
-        </button>
         <span className="timer-recipe-name">{recipe.name}</span>
         <span className="timer-step-count">
           {Math.min(stepIndex + 1, totalSteps)} / {totalSteps}
@@ -144,6 +170,14 @@ const Timer = ({ recipe, onExit }: Props) => {
       </header>
 
       <div className="glass timer-card">
+        <button
+          className="timer-close"
+          onClick={onExit}
+          aria-label="Stop and exit brew"
+        >
+          ×
+        </button>
+
         <span className="phase-pill">
           {phase === "pouring" && "Pouring"}
           {phase === "waiting" && "Wait"}
@@ -157,6 +191,23 @@ const Timer = ({ recipe, onExit }: Props) => {
           <div className="instruction">
             <span className="instruction-label">Pour water up to</span>
             <span className="instruction-value">{currentTarget} g</span>
+            {pourCountdown && (
+              <>
+                <span className="instruction-sub">
+                  {pourCountdown.secondsLeft > 0
+                    ? `${Math.ceil(pourCountdown.secondsLeft)}s until next step`
+                    : "Wrap up & tap Done"}
+                </span>
+                <div className="progress-bar">
+                  <div
+                    className={`progress-bar-fill is-countdown${
+                      pourCountdown.secondsLeft <= 3 ? " is-urgent" : ""
+                    }`}
+                    style={{ width: `${pourCountdown.remaining * 100}%` }}
+                  />
+                </div>
+              </>
+            )}
           </div>
         )}
 
@@ -229,15 +280,43 @@ const Timer = ({ recipe, onExit }: Props) => {
           )}
           {phase === "done" && (
             <button className="btn btn-primary" onClick={onExit}>
-              Finish
-            </button>
-          )}
-          {phase !== "done" && (
-            <button className="btn btn-ghost" onClick={onExit}>
-              Reset
+              Brew Another ☕
             </button>
           )}
         </div>
+      </div>
+
+      <div className="glass timeline-card">
+        <span className="timeline-heading">Brew Timeline</span>
+        <ol className="timeline">
+          {waterTargets.map((target, i) => {
+            const state = pourNodeState(i);
+            return (
+              <li key={i} className={`timeline-node is-${state}`}>
+                <span className="timeline-marker">
+                  {state === "done" ? "✓" : i + 1}
+                </span>
+                <div className="timeline-content">
+                  <span className="timeline-title">Pour to {target} g</span>
+                  <span className="timeline-sub">
+                    at {formatTime(stepTimes[i])}
+                  </span>
+                </div>
+              </li>
+            );
+          })}
+          <li className={`timeline-node is-${drawdownNodeState}`}>
+            <span className="timeline-marker">
+              {drawdownNodeState === "done" ? "✓" : "★"}
+            </span>
+            <div className="timeline-content">
+              <span className="timeline-title">Drawdown</span>
+              <span className="timeline-sub">
+                finish at {formatTime(doneTime)}
+              </span>
+            </div>
+          </li>
+        </ol>
       </div>
     </div>
   );

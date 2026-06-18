@@ -63,6 +63,42 @@ export const DEFAULT_RECIPES: Recipe[] = [
       "done-s": 210,
     },
   },
+  {
+    name: "Iced Standard 1:15 (15g Coffee / 75g Ice)",
+    ratio: "1:15",
+    "ratio-coffee": 1,
+    "ratio-water": 15,
+    "coffee-weight-g": 15,
+    time: {
+      "water-g": [45, 100, 150],
+      "time-s": [0, 45, 75],
+      "done-s": 120,
+    },
+  },
+  {
+    name: "Iced Standard 1:15 (20g Coffee / 100g Ice)",
+    ratio: "1:15",
+    "ratio-coffee": 1,
+    "ratio-water": 15,
+    "coffee-weight-g": 20,
+    time: {
+      "water-g": [60, 130, 200],
+      "time-s": [0, 45, 90],
+      "done-s": 140,
+    },
+  },
+  {
+    name: "Iced Tetsu Kasuya (15g Coffee / 90g Ice)",
+    ratio: "1:15",
+    "ratio-coffee": 1,
+    "ratio-water": 15,
+    "coffee-weight-g": 15,
+    time: {
+      "water-g": [45, 90, 135],
+      "time-s": [0, 45, 90],
+      "done-s": 150,
+    },
+  },
 ];
 
 // Older saved recipes may predate the `done-s` field. Backfill it from the
