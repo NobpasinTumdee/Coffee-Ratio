@@ -33,6 +33,10 @@ const App = () => {
     setModalOpen(false);
   };
 
+  const handleResetAll = () => {
+    localStorage.clear();
+  };
+
   return (
     <div className="app-shell">
       <div className="bg-orb bg-orb-a" aria-hidden />
@@ -66,6 +70,9 @@ const App = () => {
           handleStart(r);
         }}
       />
+      <button onClick={handleResetAll} className="reset-button">
+        Reset All Data
+      </button>
     </div>
   );
 };

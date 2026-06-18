@@ -99,6 +99,30 @@ export const DEFAULT_RECIPES: Recipe[] = [
       "done-s": 150,
     },
   },
+  {
+    "name": "Moonstone Fast Extraction (10g)",
+    "ratio": "1:15",
+    "ratio-coffee": 1,
+    "ratio-water": 15,
+    "coffee-weight-g": 10,
+    "time": {
+      "water-g": [30, 90, 150],
+      "time-s": [0, 30, 50],
+      "done-s": 105
+    }
+  },
+  {
+    "name": "Moonstone Fast Extraction (15g)",
+    "ratio": "1:15",
+    "ratio-coffee": 1,
+    "ratio-water": 15,
+    "coffee-weight-g": 15,
+    "time": {
+      "water-g": [45, 135, 225],
+      "time-s": [0, 45, 75],
+      "done-s": 135
+    }
+  },
 ];
 
 // Older saved recipes may predate the `done-s` field. Backfill it from the
