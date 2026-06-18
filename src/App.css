@@ -804,6 +804,268 @@ select.glass-input option {
   }
 }
 
+/* === Post-drip analysis / summary === */
+.summary-screen {
+  animation: fade-in 0.3s ease;
+}
+.summary-head {
+  text-align: center;
+  padding: 4px 0 0;
+}
+.summary-title {
+  font-size: clamp(24px, 6vw, 30px);
+}
+.summary-recipe {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--text-soft);
+}
+.summary-block {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Accuracy score gauge */
+.score-wrap {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.score-gauge {
+  position: relative;
+  flex: 0 0 120px;
+  width: 120px;
+  height: 120px;
+}
+.score-svg {
+  width: 100%;
+  height: 100%;
+}
+.score-track {
+  fill: none;
+  stroke: rgba(120, 85, 55, 0.14);
+  stroke-width: 10;
+}
+.score-value {
+  fill: none;
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    stroke 0.3s ease;
+}
+.tone-good .score-value {
+  stroke: var(--pouring);
+}
+.tone-ok .score-value {
+  stroke: var(--waiting);
+}
+.tone-poor .score-value {
+  stroke: #c0584a;
+}
+.score-readout {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  align-items: center;
+  gap: 1px;
+}
+.score-number {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.score-pct {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+.score-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pace-pill {
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+}
+.pace-under {
+  background: rgba(95, 138, 108, 0.14);
+  border-color: rgba(95, 138, 108, 0.4);
+  color: var(--pouring);
+}
+.pace-perfect {
+  background: rgba(139, 111, 71, 0.14);
+  border-color: rgba(139, 111, 71, 0.4);
+  color: var(--done);
+}
+.pace-over {
+  background: rgba(192, 88, 74, 0.14);
+  border-color: rgba(192, 88, 74, 0.4);
+  color: #b04a3c;
+}
+.score-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-soft);
+  line-height: 1.45;
+}
+
+/* Accuracy line chart */
+.accuracy-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.chart-grid {
+  stroke: rgba(120, 85, 55, 0.12);
+  stroke-width: 1;
+}
+.chart-axis-label {
+  fill: var(--text-mute);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+.chart-line-ideal {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.chart-line-actual {
+  fill: none;
+  stroke: var(--accent-2);
+  stroke-width: 2.5;
+  stroke-dasharray: 6 5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.chart-dot-ideal {
+  fill: var(--accent);
+}
+.chart-dot-actual {
+  fill: var(--accent-2);
+}
+.chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend-swatch {
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+}
+.legend-ideal {
+  background: var(--accent);
+}
+.legend-actual {
+  background: var(--accent-2);
+  background-image: linear-gradient(
+    90deg,
+    var(--accent-2) 55%,
+    transparent 55%
+  );
+  background-size: 7px 3px;
+}
+.legend-axis {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-mute);
+}
+
+/* Roast toggle + taste profile */
+.roast-toggle {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  background: rgba(255, 252, 246, 0.45);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+}
+.roast-option {
+  flex: 1;
+  padding: 10px 6px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-soft);
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+.roast-option.is-active {
+  background: var(--accent);
+  color: #fff8ee;
+  box-shadow: 0 6px 16px rgba(70, 45, 25, 0.18);
+}
+.roast-option:not(.is-active):hover {
+  background: rgba(255, 252, 246, 0.7);
+  color: var(--text);
+}
+
+.taste-card {
+  padding: 16px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 252, 246, 0.5);
+  border-left-width: 4px;
+}
+.taste-under {
+  border-left-color: var(--pouring);
+}
+.taste-perfect {
+  border-left-color: var(--done);
+}
+.taste-over {
+  border-left-color: #c0584a;
+}
+.taste-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+.taste-condition {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+.taste-condition-th {
+  font-size: 12px;
+  color: var(--text-mute);
+}
+.taste-body {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.summary-home {
+  align-self: stretch;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;

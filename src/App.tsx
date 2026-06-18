@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
-import type { Recipe, Screen } from "./types";
+import type { BrewResult, Recipe, Screen } from "./types";
 import { loadRecipes, saveRecipes } from "./storage";
 import RecipeSelect from "./components/RecipeSelect";
 import RecipeModal from "./components/RecipeModal";
 import RecipeDetailModal from "./components/RecipeDetailModal";
 import Timer from "./components/Timer";
+import Summary from "./components/Summary";
 import "./App.css";
 
 const App = () => {
   const [recipes, setRecipes] = useState<Recipe[]>(() => loadRecipes());
   const [screen, setScreen] = useState<Screen>("select");
   const [active, setActive] = useState<Recipe | null>(null);
+  const [result, setResult] = useState<BrewResult | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [detailRecipe, setDetailRecipe] = useState<Recipe | null>(null);
 
@@ -24,6 +26,18 @@ const App = () => {
   };
 
   const handleExitTimer = () => {
+    setActive(null);
+    setScreen("select");
+  };
+
+  // Brew finished naturally — capture the in-memory result and show analysis.
+  const handleCompleteTimer = (actualTimes: number[]) => {
+    if (active) setResult({ recipe: active, actualTimes });
+    setScreen("summary");
+  };
+
+  const handleHome = () => {
+    setResult(null);
     setActive(null);
     setScreen("select");
   };
@@ -53,7 +67,19 @@ const App = () => {
       )}
 
       {screen === "timer" && active && (
-        <Timer recipe={active} onExit={handleExitTimer} />
+        <Timer
+          recipe={active}
+          onExit={handleExitTimer}
+          onComplete={handleCompleteTimer}
+        />
+      )}
+
+      {screen === "summary" && result && (
+        <Summary
+          recipe={result.recipe}
+          actualTimes={result.actualTimes}
+          onHome={handleHome}
+        />
       )}
 
       <RecipeModal

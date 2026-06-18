@@ -15,4 +15,13 @@ export interface Recipe {
 
 export type Phase = "pouring" | "waiting" | "drawdown" | "done";
 
-export type Screen = "select" | "timer";
+export type Screen = "select" | "timer" | "summary";
+
+export type RoastLevel = "light" | "medium" | "dark";
+
+// In-memory result of a finished brew. Never persisted — recomputed per session.
+export interface BrewResult {
+  recipe: Recipe;
+  // Exact elapsed seconds captured at each "Done Pouring" click, in order.
+  actualTimes: number[];
+}

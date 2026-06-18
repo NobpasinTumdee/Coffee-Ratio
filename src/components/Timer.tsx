@@ -6,6 +6,8 @@ import warningSound from "../sound_effect/Waning.mp3";
 interface Props {
   recipe: Recipe;
   onExit: () => void;
+  // Fired once the brew reaches done-s, handing back the captured pour times.
+  onComplete: (actualTimes: number[]) => void;
 }
 
 // Restart and play a preloaded clip, ignoring autoplay-policy rejections.
@@ -22,7 +24,7 @@ const formatTime = (totalSeconds: number): string => {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 };
 
-const Timer = ({ recipe, onExit }: Props) => {
+const Timer = ({ recipe, onExit, onComplete }: Props) => {
   const waterTargets = recipe.time["water-g"];
   const stepTimes = recipe.time["time-s"];
   const doneTime = recipe.time["done-s"];
@@ -38,6 +40,10 @@ const Timer = ({ recipe, onExit }: Props) => {
   const warningRef = useRef<HTMLAudioElement | null>(null);
   // Tracks which pouring step has already fired its warning so it plays once.
   const warnedStepRef = useRef<number>(-1);
+  // Exact elapsed seconds recorded at each "Done Pouring" click (in order).
+  const actualTimesRef = useRef<number[]>([]);
+  // Guards onComplete so it only fires once when the brew finishes.
+  const completedRef = useRef(false);
 
   useEffect(() => {
     startRef.current = Date.now();
@@ -75,10 +81,14 @@ const Timer = ({ recipe, onExit }: Props) => {
     }
   }, [elapsed, phase, stepIndex, stepTimes, totalSteps]);
 
-  // Success again once the whole session has finished.
+  // Success again once the whole session has finished, then hand the captured
+  // pour times up so the post-drip analysis screen can take over.
   useEffect(() => {
-    if (phase === "done") playSound(successRef.current);
-  }, [phase]);
+    if (phase !== "done" || completedRef.current) return;
+    completedRef.current = true;
+    playSound(successRef.current);
+    onComplete(actualTimesRef.current);
+  }, [phase, onComplete]);
 
   useEffect(() => {
     if (phase !== "waiting") return;
@@ -94,6 +104,8 @@ const Timer = ({ recipe, onExit }: Props) => {
 
   const handleDone = () => {
     playSound(successRef.current);
+    // Capture the exact moment the user finished pouring this step.
+    actualTimesRef.current = [...actualTimesRef.current, elapsed];
     if (stepIndex >= totalSteps - 1) {
       // Final pour complete — wait out the drawdown instead of finishing.
       setPhase(elapsed >= doneTime ? "done" : "drawdown");
