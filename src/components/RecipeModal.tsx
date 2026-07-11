@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
-import type { Recipe } from "../types";
+import type { Recipe, SwitchState } from "../types";
 
 interface PourStep {
   water: string;
   time: string;
+  switchState: SwitchState;
 }
+
+type DripperType = "standard" | "switch";
 
 interface Props {
   open: boolean;
@@ -12,16 +15,21 @@ interface Props {
   onSave: (recipe: Recipe) => void;
 }
 
-const emptyStep = (): PourStep => ({ water: "", time: "" });
+const emptyStep = (dripper: DripperType): PourStep => ({
+  water: "",
+  time: "",
+  switchState: dripper === "switch" ? "open" : "open",
+});
 
 const RecipeModal = ({ open, onClose, onSave }: Props) => {
   const [name, setName] = useState("");
   const [coffee, setCoffee] = useState("15");
   const [ratio, setRatio] = useState("16");
   const [done, setDone] = useState("120");
+  const [dripperType, setDripperType] = useState<DripperType>("standard");
   const [steps, setSteps] = useState<PourStep[]>([
-    { water: "30", time: "0" },
-    { water: "", time: "" },
+    { water: "30", time: "0", switchState: "open" },
+    { water: "", time: "", switchState: "open" },
   ]);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,14 +39,17 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
     setCoffee("15");
     setRatio("16");
     setDone("120");
+    setDripperType("standard");
     setSteps([
-      { water: "30", time: "0" },
-      { water: "", time: "" },
+      { water: "30", time: "0", switchState: "open" },
+      { water: "", time: "", switchState: "open" },
     ]);
     setError(null);
   }, [open]);
 
   if (!open) return null;
+
+  const isSwitch = dripperType === "switch";
 
   const updateStep = (i: number, key: keyof PourStep, value: string) => {
     setSteps((prev) =>
@@ -46,7 +57,7 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
     );
   };
 
-  const addStep = () => setSteps((prev) => [...prev, emptyStep()]);
+  const addStep = () => setSteps((prev) => [...prev, emptyStep(dripperType)]);
   const removeStep = (i: number) =>
     setSteps((prev) => prev.filter((_, idx) => idx !== i));
 
@@ -65,7 +76,11 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
       return setError("Total finish time must be a positive number.");
 
     const cleanSteps = steps
-      .map((s) => ({ water: Number(s.water), time: Number(s.time) }))
+      .map((s) => ({
+        water: Number(s.water),
+        time: Number(s.time),
+        switchState: s.switchState,
+      }))
       .filter(
         (s) =>
           Number.isFinite(s.water) &&
@@ -80,8 +95,15 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
       if (cleanSteps[i].time < cleanSteps[i - 1].time) {
         return setError("Pour times must increase down the list.");
       }
-      if (cleanSteps[i].water <= cleanSteps[i - 1].water) {
-        return setError("Target water must increase down the list.");
+      if (isSwitch) {
+        // Switch recipes allow equal water (flip-only steps), but not decreasing.
+        if (cleanSteps[i].water < cleanSteps[i - 1].water) {
+          return setError("Target water cannot decrease down the list.");
+        }
+      } else {
+        if (cleanSteps[i].water <= cleanSteps[i - 1].water) {
+          return setError("Target water must increase down the list.");
+        }
       }
     }
 
@@ -96,10 +118,13 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
       "ratio-coffee": 1,
       "ratio-water": ratioNum,
       "coffee-weight-g": coffeeNum,
-      "dripper-type": "standard",
+      "dripper-type": dripperType,
       time: {
         "water-g": cleanSteps.map((s) => s.water),
         "time-s": cleanSteps.map((s) => s.time),
+        ...(isSwitch
+          ? { "switch-state": cleanSteps.map((s) => s.switchState) }
+          : {}),
         "done-s": doneNum,
       },
     };
@@ -128,6 +153,33 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
         </header>
 
         <div className="modal-body">
+          {/* Dripper type toggle */}
+          <div className="field">
+            <span className="field-label">Dripper Type</span>
+            <div
+              className="dripper-toggle"
+              role="group"
+              aria-label="Dripper type"
+            >
+              <button
+                type="button"
+                className={`dripper-option${dripperType === "standard" ? " is-active" : ""}`}
+                onClick={() => setDripperType("standard")}
+                aria-pressed={dripperType === "standard"}
+              >
+                ☕ Standard V60
+              </button>
+              <button
+                type="button"
+                className={`dripper-option${dripperType === "switch" ? " is-active" : ""}`}
+                onClick={() => setDripperType("switch")}
+                aria-pressed={dripperType === "switch"}
+              >
+                🔄 Hario Switch
+              </button>
+            </div>
+          </div>
+
           <label className="field">
             <span className="field-label">Recipe Name</span>
             <input
@@ -135,7 +187,7 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Morning V60"
+              placeholder={isSwitch ? "e.g. Switch Immersion" : "e.g. Morning V60"}
             />
           </label>
 
@@ -182,7 +234,9 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
 
           <div className="steps-section">
             <div className="steps-head">
-              <span className="field-label">Pour Steps</span>
+              <span className="field-label">
+                {isSwitch ? "Steps (Pour & Switch)" : "Pour Steps"}
+              </span>
               <button
                 type="button"
                 className="btn btn-tiny"
@@ -194,7 +248,7 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
 
             <ul className="step-list">
               {steps.map((s, i) => (
-                <li key={i} className="step-row">
+                <li key={i} className={isSwitch ? "step-row step-row-switch" : "step-row"}>
                   <span className="step-num">{i + 1}</span>
                   <input
                     className="glass-input"
@@ -213,6 +267,21 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
                     value={s.time}
                     onChange={(e) => updateStep(i, "time", e.target.value)}
                   />
+                  {isSwitch && (
+                    <div className="select-wrap step-switch-select">
+                      <select
+                        className="glass-input"
+                        value={s.switchState}
+                        onChange={(e) =>
+                          updateStep(i, "switchState", e.target.value)
+                        }
+                        aria-label={`Switch state for step ${i + 1}`}
+                      >
+                        <option value="open">🔓 Open</option>
+                        <option value="close">🔒 Close</option>
+                      </select>
+                    </div>
+                  )}
                   <button
                     type="button"
                     className="icon-btn small"
@@ -225,6 +294,12 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
                 </li>
               ))}
             </ul>
+
+            {isSwitch && (
+              <span className="field-hint">
+                Set the same water amount as the previous step for a "flip-only" action.
+              </span>
+            )}
           </div>
 
           {error && <p className="error-msg">{error}</p>}
