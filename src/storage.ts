@@ -40,6 +40,18 @@ export const DEFAULT_RECIPES: Recipe[] = [
     },
   },
   {
+    name: "Hario Switch 1:15 (20g)",
+    ratio: "1:15",
+    "ratio-coffee": 1,
+    "ratio-water": 15,
+    "coffee-weight-g": 20,
+    time: {
+      "water-g": [60, 120, 280, 281],
+      "time-s": [0, 30, 75, 105],
+      "done-s": 180,
+    },
+  },
+  {
     name: "James Hoffmann Method",
     ratio: "1:16.6",
     "ratio-coffee": 1,
@@ -61,6 +73,18 @@ export const DEFAULT_RECIPES: Recipe[] = [
       "water-g": [45, 90, 135, 180, 225],
       "time-s": [0, 45, 90, 135, 165],
       "done-s": 210,
+    },
+  },
+  {
+    name: "Drip on Ice 1:15 (20g)",
+    ratio: "1:15",
+    "ratio-coffee": 1,
+    "ratio-water": 15,
+    "coffee-weight-g": 20,
+    time: {
+      "water-g": [40, 100, 150],
+      "time-s": [0, 30, 75],
+      "done-s": 135, // About 2 minutes 15 seconds
     },
   },
   {
