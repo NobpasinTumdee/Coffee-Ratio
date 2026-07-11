@@ -76,7 +76,7 @@ export const DEFAULT_RECIPES: Recipe[] = [
     },
   },
   {
-    name: "Drip on Ice 1:15 (20g)",
+    name: "Drip on Ice 1:15 (20g Coffee / 150g Ice)",
     ratio: "1:15",
     "ratio-coffee": 1,
     "ratio-water": 15,
