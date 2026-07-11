@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Phase, Recipe } from "../types";
+import type { Phase, Recipe, SwitchState } from "../types";
 import successSound from "../sound_effect/success.mp3";
 import warningSound from "../sound_effect/Waning.mp3";
 
@@ -29,6 +29,10 @@ const Timer = ({ recipe, onExit, onComplete }: Props) => {
   const stepTimes = recipe.time["time-s"];
   const doneTime = recipe.time["done-s"];
   const totalSteps = waterTargets.length;
+
+  // Hario Switch detection
+  const isSwitch = recipe["dripper-type"] === "switch";
+  const switchStates: SwitchState[] | undefined = recipe.time["switch-state"];
 
   const [elapsed, setElapsed] = useState(0);
   const [stepIndex, setStepIndex] = useState(0);
@@ -121,6 +125,20 @@ const Timer = ({ recipe, onExit, onComplete }: Props) => {
     phase === "waiting" && stepIndex < totalSteps ? stepTimes[stepIndex] : null;
   const previousTarget = stepIndex > 0 ? waterTargets[stepIndex - 1] : 0;
 
+  // ── Hario Switch helpers ────────────────────────────────────────────
+  const currentSwitchState: SwitchState | null =
+    isSwitch && switchStates ? (switchStates[stepIndex] ?? null) : null;
+
+  // During the waiting phase, override the display to show "waiting" state.
+  const displaySwitchState: SwitchState | null = isSwitch
+    ? phase === "waiting"
+      ? "waiting"
+      : currentSwitchState
+    : null;
+
+  // A "flip-only" step: water target hasn't changed compared to the previous step.
+  const isFlipStep = isSwitch && currentTarget === previousTarget && stepIndex > 0;
+
   const waitProgress = useMemo(() => {
     if (phase !== "waiting" || nextStartTime === null) return 0;
     const prevTime = stepIndex > 0 ? stepTimes[stepIndex - 1] : 0;
@@ -172,6 +190,23 @@ const Timer = ({ recipe, onExit, onComplete }: Props) => {
   const drawdownNodeState: NodeState =
     phase === "done" ? "done" : phase === "drawdown" ? "active" : "upcoming";
 
+  // ── Timeline label helpers for Switch recipes ───────────────────────
+  const timelineLabel = (i: number): string => {
+    const target = waterTargets[i];
+    const prev = i > 0 ? waterTargets[i - 1] : 0;
+    const switchState = switchStates?.[i];
+    const stateIcon = switchState === "close" ? "🔒" : switchState === "open" ? "🔓" : "";
+
+    if (isSwitch && target === prev && i > 0) {
+      // Flip-only step
+      return `${stateIcon} Flip Switch to ${switchState === "close" ? "CLOSE" : "OPEN"}`;
+    }
+    if (isSwitch && stateIcon) {
+      return `${stateIcon} Pour to ${target} g`;
+    }
+    return `Pour to ${target} g`;
+  };
+
   return (
     <div className={`screen timer-screen phase-${phase}`}>
       <header className="timer-head">
@@ -197,12 +232,64 @@ const Timer = ({ recipe, onExit, onComplete }: Props) => {
           {phase === "done" && "Brew Complete"}
         </span>
 
+        {/* ── Big Switch Status Indicator (Switch recipes only) ────── */}
+        {isSwitch && phase !== "done" && displaySwitchState && (
+          <div
+            className={`switch-indicator ${
+              displaySwitchState === "close"
+                ? "is-closed"
+                : displaySwitchState === "waiting"
+                  ? "is-waiting"
+                  : "is-open"
+            }`}
+            aria-live="polite"
+          >
+            <span className="switch-indicator-icon">
+              {displaySwitchState === "close"
+                ? "🔒"
+                : displaySwitchState === "waiting"
+                  ? "⏳"
+                  : "🔓"}
+            </span>
+            <span className="switch-indicator-label">
+              {displaySwitchState === "close"
+                ? "SWITCH CLOSED"
+                : displaySwitchState === "waiting"
+                  ? "WAITING"
+                  : "SWITCH OPEN"}
+            </span>
+            <span className="switch-indicator-sub">
+              {displaySwitchState === "close"
+                ? "Immersion / แช่น้ำ"
+                : displaySwitchState === "waiting"
+                  ? "รอจนกว่าจะถึงเวลา"
+                  : "Drawdown / น้ำไหล"}
+            </span>
+          </div>
+        )}
+
         <div className="elapsed">{formatTime(elapsed)}</div>
 
         {phase === "pouring" && (
           <div className="instruction">
-            <span className="instruction-label">Pour water up to</span>
-            <span className="instruction-value">{currentTarget} g</span>
+            {isFlipStep ? (
+              <>
+                <span className="instruction-label switch-action-label">Action Required</span>
+                <span className="instruction-value switch-action-value">
+                  Flip Switch to {currentSwitchState === "close" ? "CLOSE" : "OPEN"}
+                </span>
+                <span className="instruction-sub">
+                  {currentSwitchState === "close"
+                    ? "🔒 Close the valve for immersion"
+                    : "🔓 Open the valve for drawdown"}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="instruction-label">Pour water up to</span>
+                <span className="instruction-value">{currentTarget} g</span>
+              </>
+            )}
             {pourCountdown && (
               <>
                 <span className="instruction-sub">
@@ -230,7 +317,17 @@ const Timer = ({ recipe, onExit, onComplete }: Props) => {
               {formatTime(nextStartTime)}
             </span>
             <span className="instruction-sub">
-              Next pour: {currentTarget} g
+              {isSwitch && switchStates
+                ? (() => {
+                    const nextTarget = waterTargets[stepIndex];
+                    const prevTarget = stepIndex > 0 ? waterTargets[stepIndex - 1] : 0;
+                    if (nextTarget === prevTarget && stepIndex > 0) {
+                      const nextState = switchStates[stepIndex];
+                      return `Next: Flip switch to ${nextState === "close" ? "CLOSE" : "OPEN"}`;
+                    }
+                    return `Next pour: ${nextTarget} g`;
+                  })()
+                : `Next pour: ${currentTarget} g`}
             </span>
             <div className="progress-bar">
               <div
@@ -277,7 +374,7 @@ const Timer = ({ recipe, onExit, onComplete }: Props) => {
         <div className="button-row">
           {phase === "pouring" && (
             <button className="btn btn-primary" onClick={handleDone}>
-              Done Pouring
+              {isSwitch ? "Done ✓" : "Done Pouring"}
             </button>
           )}
           {phase === "waiting" && (
@@ -301,7 +398,7 @@ const Timer = ({ recipe, onExit, onComplete }: Props) => {
       <div className="glass timeline-card">
         <span className="timeline-heading">Brew Timeline</span>
         <ol className="timeline">
-          {waterTargets.map((target, i) => {
+          {waterTargets.map((_target, i) => {
             const state = pourNodeState(i);
             return (
               <li key={i} className={`timeline-node is-${state}`}>
@@ -309,7 +406,7 @@ const Timer = ({ recipe, onExit, onComplete }: Props) => {
                   {state === "done" ? "✓" : i + 1}
                 </span>
                 <div className="timeline-content">
-                  <span className="timeline-title">Pour to {target} g</span>
+                  <span className="timeline-title">{timelineLabel(i)}</span>
                   <span className="timeline-sub">
                     at {formatTime(stepTimes[i])}
                   </span>

@@ -9,6 +9,7 @@ export const DEFAULT_RECIPES: Recipe[] = [
     "ratio-coffee": 1,
     "ratio-water": 15,
     "coffee-weight-g": 10,
+    "dripper-type": "standard",
     time: {
       "water-g": [30, 90, 150],
       "time-s": [0, 30, 60],
@@ -21,6 +22,7 @@ export const DEFAULT_RECIPES: Recipe[] = [
     "ratio-coffee": 1,
     "ratio-water": 15,
     "coffee-weight-g": 15,
+    "dripper-type": "standard",
     time: {
       "water-g": [45, 135, 225],
       "time-s": [0, 45, 75],
@@ -33,22 +35,11 @@ export const DEFAULT_RECIPES: Recipe[] = [
     "ratio-coffee": 1,
     "ratio-water": 15,
     "coffee-weight-g": 20,
+    "dripper-type": "standard",
     time: {
       "water-g": [60, 180, 300],
       "time-s": [0, 45, 90],
       "done-s": 150,
-    },
-  },
-  {
-    name: "Hario Switch 1:15 (20g)",
-    ratio: "1:15",
-    "ratio-coffee": 1,
-    "ratio-water": 15,
-    "coffee-weight-g": 20,
-    time: {
-      "water-g": [60, 120, 280, 281],
-      "time-s": [0, 30, 75, 105],
-      "done-s": 180,
     },
   },
   {
@@ -57,6 +48,7 @@ export const DEFAULT_RECIPES: Recipe[] = [
     "ratio-coffee": 1,
     "ratio-water": 16.6,
     "coffee-weight-g": 15,
+    "dripper-type": "standard",
     time: {
       "water-g": [50, 150, 250],
       "time-s": [0, 45, 75],
@@ -69,6 +61,7 @@ export const DEFAULT_RECIPES: Recipe[] = [
     "ratio-coffee": 1,
     "ratio-water": 15,
     "coffee-weight-g": 15,
+    "dripper-type": "standard",
     time: {
       "water-g": [45, 90, 135, 180, 225],
       "time-s": [0, 45, 90, 135, 165],
@@ -81,6 +74,7 @@ export const DEFAULT_RECIPES: Recipe[] = [
     "ratio-coffee": 1,
     "ratio-water": 15,
     "coffee-weight-g": 20,
+    "dripper-type": "standard",
     time: {
       "water-g": [40, 100, 150],
       "time-s": [0, 30, 75],
@@ -93,6 +87,7 @@ export const DEFAULT_RECIPES: Recipe[] = [
     "ratio-coffee": 1,
     "ratio-water": 15,
     "coffee-weight-g": 15,
+    "dripper-type": "standard",
     time: {
       "water-g": [45, 100, 150],
       "time-s": [0, 45, 75],
@@ -105,6 +100,7 @@ export const DEFAULT_RECIPES: Recipe[] = [
     "ratio-coffee": 1,
     "ratio-water": 15,
     "coffee-weight-g": 20,
+    "dripper-type": "standard",
     time: {
       "water-g": [60, 130, 200],
       "time-s": [0, 45, 90],
@@ -117,6 +113,7 @@ export const DEFAULT_RECIPES: Recipe[] = [
     "ratio-coffee": 1,
     "ratio-water": 15,
     "coffee-weight-g": 15,
+    "dripper-type": "standard",
     time: {
       "water-g": [45, 90, 135],
       "time-s": [0, 45, 90],
@@ -129,6 +126,7 @@ export const DEFAULT_RECIPES: Recipe[] = [
     "ratio-coffee": 1,
     "ratio-water": 15,
     "coffee-weight-g": 10,
+    "dripper-type": "standard",
     "time": {
       "water-g": [30, 90, 150],
       "time-s": [0, 30, 50],
@@ -141,31 +139,97 @@ export const DEFAULT_RECIPES: Recipe[] = [
     "ratio-coffee": 1,
     "ratio-water": 15,
     "coffee-weight-g": 15,
+    "dripper-type": "standard",
     "time": {
       "water-g": [45, 135, 225],
       "time-s": [0, 45, 75],
       "done-s": 135
     }
   },
+  // ── Hario Switch recipes ──────────────────────────────────────────────
+  {
+    name: "Hario Switch 1:15 (20g)",
+    ratio: "1:15",
+    "ratio-coffee": 1,
+    "ratio-water": 15,
+    "coffee-weight-g": 20,
+    "dripper-type": "switch",
+    time: {
+      "water-g": [60, 120, 280, 281],
+      "time-s": [0, 30, 75, 105],
+      "switch-state": ["open", "open", "close", "close", "open"],
+      "done-s": 180,
+    },
+  },
+  {
+    name: "Switch Hybrid Method (10g)",
+    ratio: "1:15",
+    "ratio-coffee": 1,
+    "ratio-water": 15,
+    "coffee-weight-g": 10,
+    "dripper-type": "switch",
+    time: {
+      "water-g": [75, 150, 150],
+      "time-s": [0, 60, 105],
+      "switch-state": ["open", "close", "open"],
+      "done-s": 135,
+    },
+  },
+  {
+    name: "Switch Hybrid Method (15g)",
+    ratio: "1:15",
+    "ratio-coffee": 1,
+    "ratio-water": 15,
+    "coffee-weight-g": 15,
+    "dripper-type": "switch",
+    time: {
+      "water-g": [115, 225, 225],
+      "time-s": [0, 75, 120],
+      "switch-state": ["open", "close", "open"],
+      "done-s": 165,
+    },
+  },
+  {
+    name: "Switch Full Immersion (20g)",
+    ratio: "1:15",
+    "ratio-coffee": 1,
+    "ratio-water": 15,
+    "coffee-weight-g": 20,
+    "dripper-type": "switch",
+    time: {
+      "water-g": [300, 300],
+      "time-s": [0, 120],
+      "switch-state": ["close", "open"],
+      "done-s": 180,
+    },
+  },
 ];
 
-// Older saved recipes may predate the `done-s` field. Backfill it from the
-// last pour time so the drawdown phase always has a valid target.
-const withDoneTime = (recipe: Recipe): Recipe => {
-  if (typeof recipe.time["done-s"] === "number") return recipe;
-  const times = recipe.time["time-s"];
-  const lastTime = times.at(-1) ?? 0;
-  return {
-    ...recipe,
-    time: { ...recipe.time, "done-s": lastTime },
-  };
+// Older saved recipes may predate the `done-s` field or the `dripper-type`
+// field. Backfill them so every recipe always has both.
+const migrateRecipe = (recipe: Recipe): Recipe => {
+  let patched = recipe;
+
+  // Backfill done-s from the last pour time.
+  if (typeof patched.time["done-s"] !== "number") {
+    const times = patched.time["time-s"];
+    const lastTime = times.at(-1) ?? 0;
+    patched = { ...patched, time: { ...patched.time, "done-s": lastTime } };
+  }
+
+  // Backfill dripper-type — anything without it is a standard dripper.
+  if (!patched["dripper-type"]) {
+    patched = { ...patched, "dripper-type": "standard" };
+  }
+
+  return patched;
 };
 
 export const loadRecipes = (): Recipe[] => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_RECIPES;
-    const parsed = (JSON.parse(raw) as Recipe[]).map(withDoneTime);
+    const parsed = (JSON.parse(raw) as Recipe[]).map(migrateRecipe);
     if (!Array.isArray(parsed) || parsed.length === 0) return DEFAULT_RECIPES;
     const existingNames = new Set(parsed.map((r) => r.name));
     const missing = DEFAULT_RECIPES.filter((r) => !existingNames.has(r.name));

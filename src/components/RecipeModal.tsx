@@ -96,6 +96,7 @@ const RecipeModal = ({ open, onClose, onSave }: Props) => {
       "ratio-coffee": 1,
       "ratio-water": ratioNum,
       "coffee-weight-g": coffeeNum,
+      "dripper-type": "standard",
       time: {
         "water-g": cleanSteps.map((s) => s.water),
         "time-s": cleanSteps.map((s) => s.time),

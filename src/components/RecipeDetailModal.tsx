@@ -20,6 +20,8 @@ const RecipeDetailModal = ({ recipe, onClose, onStart }: Props) => {
   const times = recipe.time["time-s"];
   const doneTime = recipe.time["done-s"];
   const totalWater = waters.at(-1) ?? 0;
+  const isSwitch = recipe["dripper-type"] === "switch";
+  const switchStates = recipe.time["switch-state"];
 
   return (
     <div className="modal-overlay" onClick={onClose} role="presentation">
@@ -67,13 +69,28 @@ const RecipeDetailModal = ({ recipe, onClose, onStart }: Props) => {
               {waters.map((target, i) => {
                 const prev = i > 0 ? waters[i - 1] : 0;
                 const add = target - prev;
+                const switchState = isSwitch && switchStates ? switchStates[i] : null;
+                const isFlip = isSwitch && target === prev && i > 0;
+                const stateIcon = switchState === "close" ? "🔒" : switchState === "open" ? "🔓" : switchState === "waiting" ? "⏳" : "";
+
                 return (
                   <li key={i} className="schedule-row">
                     <span className="schedule-num">{i + 1}</span>
                     <div className="schedule-main">
                       <span className="schedule-target">
-                        Pour to <strong>{target} g</strong>
-                        <span className="schedule-add">(+{add} g)</span>
+                        {isFlip ? (
+                          <>
+                            {stateIcon} Flip Switch to{" "}
+                            <strong>{switchState === "close" ? "CLOSE" : "OPEN"}</strong>
+                            <span className="schedule-add"> (no pour)</span>
+                          </>
+                        ) : (
+                          <>
+                            {stateIcon && `${stateIcon} `}Pour to{" "}
+                            <strong>{target} g</strong>
+                            <span className="schedule-add">(+{add} g)</span>
+                          </>
+                        )}
                       </span>
                       <span className="schedule-time">
                         Start @ {formatTime(times[i])}

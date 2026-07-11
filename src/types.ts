@@ -1,6 +1,9 @@
+export type SwitchState = "open" | "close" | "waiting";
+
 export interface RecipeStep {
   "water-g": number[];
   "time-s": number[];
+  "switch-state"?: SwitchState[];
   "done-s": number;
 }
 
@@ -10,6 +13,7 @@ export interface Recipe {
   "ratio-coffee": number;
   "ratio-water": number;
   "coffee-weight-g": number;
+  "dripper-type": "standard" | "switch";
   time: RecipeStep;
 }
 

@@ -9,10 +9,22 @@ interface Props {
   onViewDetails: (recipe: Recipe) => void;
 }
 
+type DripperType = "standard" | "switch";
+
 const RecipeSelect = ({ recipes, onStart, onAddClick, onViewDetails }: Props) => {
+  const [dripperType, setDripperType] = useState<DripperType>("standard");
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const selected = recipes[selectedIndex];
+
+  const filtered = recipes.filter(
+    (r) => (r["dripper-type"] ?? "standard") === dripperType,
+  );
+  const selected = filtered[selectedIndex];
   const waterTotal = selected?.time["water-g"].at(-1) ?? 0;
+
+  const switchDripper = (type: DripperType) => {
+    setDripperType(type);
+    setSelectedIndex(0);
+  };
 
   return (
     <div className="screen select-screen">
@@ -23,6 +35,28 @@ const RecipeSelect = ({ recipes, onStart, onAddClick, onViewDetails }: Props) =>
       </header>
 
       <section className="glass card recipe-card">
+        {/* Dripper type toggle */}
+        <div
+          className="dripper-toggle"
+          role="group"
+          aria-label="Dripper type"
+        >
+          <button
+            className={`dripper-option${dripperType === "standard" ? " is-active" : ""}`}
+            onClick={() => switchDripper("standard")}
+            aria-pressed={dripperType === "standard"}
+          >
+            ☕ Standard V60
+          </button>
+          <button
+            className={`dripper-option${dripperType === "switch" ? " is-active" : ""}`}
+            onClick={() => switchDripper("switch")}
+            aria-pressed={dripperType === "switch"}
+          >
+            🔄 Hario Switch
+          </button>
+        </div>
+
         <label className="field-label" htmlFor="recipe-select">
           Recipe
         </label>
@@ -33,7 +67,7 @@ const RecipeSelect = ({ recipes, onStart, onAddClick, onViewDetails }: Props) =>
             value={selectedIndex}
             onChange={(e) => setSelectedIndex(Number(e.target.value))}
           >
-            {recipes.map((r, i) => (
+            {filtered.map((r, i) => (
               <option key={`${r.name}-${i}`} value={i}>
                 {r.name}
               </option>

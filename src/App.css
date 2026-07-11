@@ -1084,3 +1084,148 @@ select.glass-input option {
     opacity: 1;
   }
 }
+
+/* === Dripper type toggle (main screen) === */
+.dripper-toggle {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  background: rgba(255, 252, 246, 0.45);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+}
+.dripper-option {
+  flex: 1;
+  padding: 10px 6px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-soft);
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+.dripper-option.is-active {
+  background: var(--accent);
+  color: #fff8ee;
+  box-shadow: 0 6px 16px rgba(70, 45, 25, 0.18);
+}
+.dripper-option:not(.is-active):hover {
+  background: rgba(255, 252, 246, 0.7);
+  color: var(--text);
+}
+
+/* === Big Switch Status Indicator (Timer) === */
+.switch-indicator {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  transition:
+    background 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.4s ease,
+    color 0.4s ease;
+  animation: switch-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes switch-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* CLOSED state – warm red / orange glow */
+.switch-indicator.is-closed {
+  background: rgba(200, 90, 60, 0.12);
+  border-color: rgba(200, 90, 60, 0.45);
+  box-shadow:
+    0 0 20px rgba(200, 90, 60, 0.15),
+    0 0 0 4px rgba(200, 90, 60, 0.08);
+}
+.switch-indicator.is-closed .switch-indicator-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+.switch-indicator.is-closed .switch-indicator-label {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #b04a3c;
+}
+.switch-indicator.is-closed .switch-indicator-sub {
+  font-size: 11px;
+  color: #c0584a;
+  letter-spacing: 0.04em;
+}
+
+/* OPEN state – cool blue / green glow */
+.switch-indicator.is-open {
+  background: rgba(70, 140, 120, 0.12);
+  border-color: rgba(70, 140, 120, 0.45);
+  box-shadow:
+    0 0 20px rgba(70, 140, 120, 0.15),
+    0 0 0 4px rgba(70, 140, 120, 0.08);
+}
+.switch-indicator.is-open .switch-indicator-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+.switch-indicator.is-open .switch-indicator-label {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #3a8a6c;
+}
+.switch-indicator.is-open .switch-indicator-sub {
+  font-size: 11px;
+  color: #468c78;
+  letter-spacing: 0.04em;
+}
+
+/* WAITING state – warm amber / gold glow */
+.switch-indicator.is-waiting {
+  background: rgba(184, 137, 90, 0.12);
+  border-color: rgba(184, 137, 90, 0.45);
+  box-shadow:
+    0 0 20px rgba(184, 137, 90, 0.15),
+    0 0 0 4px rgba(184, 137, 90, 0.08);
+}
+.switch-indicator.is-waiting .switch-indicator-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+.switch-indicator.is-waiting .switch-indicator-label {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--waiting);
+}
+.switch-indicator.is-waiting .switch-indicator-sub {
+  font-size: 11px;
+  color: #a08060;
+  letter-spacing: 0.04em;
+}
+
+/* === Switch action instruction styling === */
+.switch-action-label {
+  color: var(--accent-2) !important;
+  font-weight: 700;
+}
+.switch-action-value {
+  color: var(--text) !important;
+  font-size: clamp(22px, 6vw, 28px) !important;
+  letter-spacing: 0.02em;
+}
